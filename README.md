@@ -43,22 +43,23 @@ $ pip install Flask
 ##### **Windows环境**
 
 ```powershell
-PS C:\stepic_back> $env:FLASK_APP = "hello.py"
-PS C:\stepic_back> flask run --host=0.0.0.0
+> set FLASK_APP=flaskr
+> flask run
+PS > $env:FLASK_APP="flaskr"
+PS > flask run
 ```
 
 ##### **Linux环境**
 
 ```shell
-$ export FLASK_APP=hello.py
-$ flask run
+$ export FLASK_APP=flaskr
+$ flask run --host=0.0.0.0
 ```
 
 ##### 调试模式
 
 ```shell
 $ export FLASK_ENV=development
-$ flask run
 ```
 
 （在 Windows 下需要使用 `set` 来代替 `export` 。）
