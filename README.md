@@ -40,6 +40,12 @@ $ pip install Flask
 
 #### 运行
 
+##### 生成数据库
+
+```shell
+$ flask init-db
+```
+
 ##### **Windows环境**
 
 ```powershell
