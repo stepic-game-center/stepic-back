@@ -270,7 +270,7 @@ def game_query_all_pub():
         if len(games) == 0:
             error = 'empty'
         
-        url = 'http://127.0.0.1:5000/static/'
+        url = 'http://106.13.236.185:5000/static/'
 
         if error is None:
             res_games = []
