@@ -711,6 +711,9 @@ def game_upload():
     '''开发者上传游戏'''
     if request.method == 'POST':
 
+        import platform
+        sys = platform.system()
+
         # 一个带有 enctype=multipart/form-data 的 <form> 标记，
         # 标记中含有 一个 <input type=file> 。
         # check if the post request has the file part
@@ -738,13 +741,23 @@ def game_upload():
             flash('No selected file')
             return 'error'
         if file_image and allowed_file(file_image.filename):
-            file_image.save(basepath + '\static\image\\' + image)
+            if sys == "Windows":
+                file_image.save(basepath + '\static\image\\' + image)
+            elif sys == "Linux":
+                file_image.save(basepath + '/static/image/' + image)
+            else:
+                error = 'failed'
         
         if file_game.filename == '':
             flash('No selected file')
             return 'error'
         if file_game and allowed_file(file_game.filename):
-            file_game.save(basepath + '\static\game\\' + filename)
+            if sys == "Windows":
+                file_game.save(basepath + '\static\game\\' + filename)
+            elif sys == "Linux":
+                file_game.save(basepath + '/static/game/' + filename)
+            else:
+                error = 'failed'
 
         db = get_db()
         error = None
@@ -791,6 +804,9 @@ def game_update():
     '''开发者更新游戏'''
     if request.method == 'POST':
 
+        import platform
+        sys = platform.system()
+
         if 'game' not in request.files:
             flash('No game file part')
             return 'error'
@@ -813,7 +829,12 @@ def game_update():
             flash('No selected file')
             return 'error'
         if file_game and allowed_file(file_game.filename):
-            file_game.save(basepath + '\static\game\\' + filename)
+            if sys == "Windows":
+                file_game.save(basepath + '\static\game\\' + filename)
+            elif sys == "Linux":
+                file_game.save(basepath + '/static/game/' + filename)
+            else:
+                error = 'failed'
 
         if error is None:
             db.execute(
