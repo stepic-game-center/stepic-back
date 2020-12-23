@@ -190,6 +190,119 @@ def regit_developer():
         return 'regit_developer'
 
 
+@bp.route('/admin/query_info', methods=('GET', 'POST'))
+def admin_query_info():
+    '''管理员查询个人信息'''
+    if request.method == 'POST':
+        aname = request.form['aname']
+        db = get_db()
+        error = None
+        admin = None
+        if not aname:
+            error = 'failed'
+        else:
+            admin = db.execute(
+                'SELECT * FROM admin WHERE aname = ?',
+                (aname, )
+            ).fetchone()
+            if admin is None:
+                error = 'failed'
+
+        if error is None:
+            return {
+                'aid': admin['aid'],
+                'aname': admin['aname'],
+                'aphone': admin['aphone'],
+                'address': admin['address']
+            };
+        else:
+            return error
+    else:
+        return 'admin_query_info'
+
+@bp.route('/admin/update_info', methods=('GET', 'POST'))
+def admin_update_info():
+    '''管理员修改个人信息'''
+    if request.method == 'POST':
+
+        aname = request.form['aname']
+        aphone = request.form['aphone']
+        address = request.form['address']
+
+        db = get_db()
+        error = None
+
+        if not aname:
+            error = 'failed'
+        else:
+            db.execute(
+                'UPDATE admin SET aphone=?, address=? WHERE aname=?',
+                (aphone, address, aname)
+            )
+            db.commit()
+
+        if error is None:
+            return 'success'
+        else:
+            return error
+    else:
+        return 'admin_update_info'
+
+
+@bp.route('/admin/query_all', methods=('GET', 'POST'))
+def admin_query_all():
+    '''查询所有管理员'''
+    if request.method == 'POST':
+        db = get_db()
+        error = None
+        
+        admins = db.execute(
+            'SELECT * FROM admin'
+        ).fetchall()
+
+        if len(admins) == 0:
+            error = 'empty'
+        
+        if error is None:
+            res_admins = []
+            for admin in admins:
+                res_admin = {}
+                res_admin['aid'] = admin['aid']
+                res_admin['aname'] = admin['aname']
+                res_admin['aphone'] = admin['aphone']
+                res_admin['address'] = admin['address']
+                res_admins.append(res_admin)
+            return jsonify(res_admins)
+        else:
+            return error
+    else:
+        return 'admin_query_all'
+
+@bp.route('/admin/delete', methods=('GET', 'POST'))
+def admin_delete():
+    '''删除某一管理员'''
+    if request.method == 'POST':
+        aname = request.form['aname']
+        db = get_db()
+        error = None
+
+        if not aname:
+            error = 'failed'
+        else:
+            db.execute(
+                'DELETE FROM admin WHERE aname = ?',
+                (aname, )
+            )
+            db.commit()
+
+        if error is None:
+            return 'success'
+        else:
+            return error
+    else:
+        return 'admin_delete'
+
+
 @bp.route('/user/query_userinfo', methods=('GET', 'POST'))
 def user_query_userinfo():
     '''用户查询个人信息'''
@@ -236,7 +349,6 @@ def user_update_userinfo():
         phone = request.form['phone']
         birthday = request.form['birthday']
         intro = request.form['intro']
-        exper = request.form['exper']
 
         db = get_db()
         error = None
@@ -246,8 +358,8 @@ def user_update_userinfo():
         else:
             db.execute(
                 'UPDATE tbuser SET unick=?, sex=?, phone=?, birthday=?, \
-                intro=?, exper=? WHERE uname=?',
-                (unick, sex, phone, birthday, intro, exper, uname)
+                intro=? WHERE uname=?',
+                (unick, sex, phone, birthday, intro, uname)
             )
             db.commit()
 
@@ -257,6 +369,41 @@ def user_update_userinfo():
             return error
     else:
         return 'user_update_userinfo'
+
+
+@bp.route('/user/update_user', methods=('GET', 'POST'))
+def user_update_user():
+    '''修改用户信息'''
+    if request.method == 'POST':
+
+        uid = request.form['uid']
+        uname = request.form['uname']
+        unick = request.form['unick']
+        sex = request.form['sex']
+        phone = request.form['phone']
+        birthday = request.form['birthday']
+        intro = request.form['intro']
+        exper = request.form['exper']
+
+        db = get_db()
+        error = None
+
+        if not uid:
+            error = 'failed'
+        else:
+            db.execute(
+                'UPDATE tbuser SET uname=?, unick=?, sex=?, phone=?, birthday=?, \
+                intro=?, exper=? WHERE uid=?',
+                (uname, unick, sex, phone, birthday, intro, exper, uid)
+            )
+            db.commit()
+
+        if error is None:
+            return 'success'
+        else:
+            return error
+    else:
+        return 'user_update_user'
     
 
 @bp.route('/user/query_all', methods=('GET', 'POST'))
@@ -307,6 +454,7 @@ def user_delete():
                 'DELETE FROM tbuser WHERE uname = ?',
                 (uname, )
             )
+            db.commit()
 
         if error is None:
             return 'success'
@@ -314,6 +462,34 @@ def user_delete():
             return error
     else:
         return 'user_delete'
+
+
+@bp.route('/user/update_exper', methods=('GET', 'POST'))
+def user_update_exper():
+    '''用户新增经验值'''
+    if request.method == 'POST':
+    
+        uname = request.form['username']
+        exper = request.form['exper']
+
+        db = get_db()
+        error = None
+
+        if not uname:
+            error = 'failed'
+        else:
+            db.execute(
+                'UPDATE tbuser SET exper=exper+? WHERE uname=?',
+                (exper, uname)
+            )
+            db.commit()
+
+        if error is None:
+            return 'success'
+        else:
+            return error
+    else:
+        return 'user_update_exper'
 
 
 @bp.route('/game/query_all_pub', methods=('GET', 'POST'))
@@ -753,3 +929,302 @@ def game_update_game():
             return error
     else:
         return 'game_update_game'
+
+
+@bp.route('/score/query_by_uid', methods=('GET', 'POST'))
+def score_query_by_uid():
+    '''根据uid查询得分'''
+    if request.method == 'POST':
+        db = get_db()
+        error = None
+
+        uid = request.form['uid']
+        if not uid:
+            error = 'failed'
+        
+        scores = db.execute(
+            'SELECT score.*, gname, uname FROM score, game, tbuser \
+            WHERE score.uid = tbuser.uid AND score.uid=? \
+            AND score.gid = game.gid',
+            (uid, )
+        ).fetchall()
+
+        if len(scores) == 0:
+            error = 'empty'
+
+        if error is None:
+            res_scores = []
+            for score in scores:
+                res_score = {}
+                res_score['sid'] = score['sid']
+                res_score['uid'] = score['uid']
+                res_score['gid'] = score['gid']
+                res_score['score'] = score['score']
+                res_score['date'] = score['date']
+                res_score['uname'] = score['uname']
+                res_score['gname'] = score['gname']
+                res_scores.append(res_score)
+            return jsonify(res_scores)
+        else:
+            return error
+    else:
+        return 'score_query_by_uid'
+
+
+@bp.route('/score/query_all', methods=('GET', 'POST'))
+def score_query_all():
+    '''查询所有得分'''
+    if request.method == 'POST':
+        db = get_db()
+        error = None
+        
+        scores = db.execute(
+            'SELECT score.*, gname, uname FROM score, game, tbuser \
+            WHERE score.uid = tbuser.uid \
+            AND score.gid = game.gid'
+        ).fetchall()
+
+        if len(scores) == 0:
+            error = 'empty'
+
+        if error is None:
+            res_scores = []
+            for score in scores:
+                res_score = {}
+                res_score['sid'] = score['sid']
+                res_score['uid'] = score['uid']
+                res_score['gid'] = score['gid']
+                res_score['score'] = score['score']
+                res_score['date'] = score['date']
+                res_score['uname'] = score['uname']
+                res_score['gname'] = score['gname']
+                res_scores.append(res_score)
+            return jsonify(res_scores)
+        else:
+            return error
+    else:
+        return 'score_query_all'
+
+
+@bp.route('/score/query_by_gid', methods=('GET', 'POST'))
+def score_query_by_gid():
+    '''根据gid查询得分'''
+    if request.method == 'POST':
+        db = get_db()
+        error = None
+
+        gid = request.form['gid']
+        if not gid:
+            error = 'failed'
+        
+        scores = db.execute(
+            'SELECT score.*, gname, uname FROM score, game, tbuser \
+            WHERE score.uid = tbuser.uid AND score.gid=? \
+            AND score.gid = game.gid',
+            (gid, )
+        ).fetchall()
+
+        if len(scores) == 0:
+            error = 'empty'
+
+        if error is None:
+            res_scores = []
+            for score in scores:
+                res_score = {}
+                res_score['sid'] = score['sid']
+                res_score['uid'] = score['uid']
+                res_score['gid'] = score['gid']
+                res_score['score'] = score['score']
+                res_score['date'] = score['date']
+                res_score['uname'] = score['uname']
+                res_score['gname'] = score['gname']
+                res_scores.append(res_score)
+            return jsonify(res_scores)
+        else:
+            return error
+    else:
+        return 'score_query_by_gid'
+
+
+@bp.route('/score/query_max', methods=('GET', 'POST'))
+def score_query_max():
+    '''查询游戏最高得分'''
+    if request.method == 'POST':
+        db = get_db()
+        error = None
+
+        gid = request.form['gid']
+        if not gid:
+            error = 'failed'
+        
+        score = db.execute(
+            'SELECT score.score FROM score, game \
+            WHERE score.gid = game.gid AND score.gid = ? \
+            ORDER BY score DESC',
+            (gid, )
+        ).fetchone()
+
+        if error is None:
+            if score:
+                return {
+                    'score': score['score']
+                }
+            else:
+                return 'empty'
+        else:
+            return error
+    else:
+        return 'score_query_max'
+
+
+@bp.route('/score/add', methods=('GET', 'POST'))
+def score_add():
+    '''新增一条游戏得分'''
+    if request.method == 'POST':
+        
+        uname = request.form['uname']
+        gid = request.form['gid']
+        score = request.form['score']
+
+        db = get_db()
+        error = None
+        if not uname or not gid or not score:
+            error = 'failed'
+        else:
+            user = db.execute(
+                'SELECT * FROM tbuser WHERE uname = ?', (uname,)
+            ).fetchone()
+
+            if user is None:
+                error = 'failed'
+            else:
+                import datetime
+                now_time = datetime.datetime.now().strftime('%Y-%m-%d')
+                db.execute(
+                    'INSERT INTO score (uid, gid, score, date) VALUES (?, ?, ?, ?)',
+                    (user['uid'], gid, score, now_time)
+                )
+                db.commit()
+                return 'success'
+
+        if error is None:
+            return 'success'
+        else:
+            return error
+    else:
+        return 'score_add'
+
+
+# 开发者
+
+@bp.route('/developer/query_info', methods=('GET', 'POST'))
+def developer_query_info():
+    '''开发者查询个人信息'''
+    if request.method == 'POST':
+        dname = request.form['dname']
+        db = get_db()
+        error = None
+        developer = None
+        if not dname:
+            error = 'failed'
+        else:
+            developer = db.execute(
+                'SELECT * FROM developer WHERE dname = ?',
+                (dname, )
+            ).fetchone()
+            if developer is None:
+                error = 'failed'
+
+        if error is None:
+            return {
+                'did': developer['did'],
+                'dname': developer['dname'],
+                'dphone': developer['dphone'],
+                'dnick': developer['dnick']
+            };
+        else:
+            return error
+    else:
+        return 'developer_query_info'
+
+@bp.route('/developer/update_info', methods=('GET', 'POST'))
+def developer_update_info():
+    '''开发者修改个人信息'''
+    if request.method == 'POST':
+
+        dname = request.form['dname']
+        dphone = request.form['dphone']
+        dnick = request.form['dnick']
+
+        db = get_db()
+        error = None
+
+        if not dname:
+            error = 'failed'
+        else:
+            db.execute(
+                'UPDATE developer SET dphone=?, dnick=? WHERE dname=?',
+                (dphone, dnick, dname)
+            )
+            db.commit()
+
+        if error is None:
+            return 'success'
+        else:
+            return error
+    else:
+        return 'developer_update_info'
+
+
+@bp.route('/developer/query_all', methods=('GET', 'POST'))
+def developer_query_all():
+    '''查询所有开发者'''
+    if request.method == 'POST':
+        db = get_db()
+        error = None
+        
+        developers = db.execute(
+            'SELECT * FROM developer'
+        ).fetchall()
+
+        if len(developers) == 0:
+            error = 'empty'
+        
+        if error is None:
+            res_developers = []
+            for developer in developers:
+                res_developer = {}
+                res_developer['did'] = developer['did']
+                res_developer['dname'] = developer['dname']
+                res_developer['dphone'] = developer['dphone']
+                res_developer['dnick'] = developer['dnick']
+                res_developers.append(res_developer)
+            return jsonify(res_developers)
+        else:
+            return error
+    else:
+        return 'developer_query_all'
+
+@bp.route('/developer/delete', methods=('GET', 'POST'))
+def developer_delete():
+    '''删除某一开发者'''
+    if request.method == 'POST':
+        dname = request.form['dname']
+        db = get_db()
+        error = None
+
+        if not dname:
+            error = 'failed'
+        else:
+            db.execute(
+                'DELETE FROM developer WHERE dname = ?',
+                (dname, )
+            )
+            db.commit()
+
+        if error is None:
+            return 'success'
+        else:
+            return error
+    else:
+        return 'developer_delete'
