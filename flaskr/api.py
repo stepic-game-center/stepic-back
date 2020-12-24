@@ -730,7 +730,10 @@ def game_upload():
         name = request.form['name']
         note = request.form['note']
         version = request.form['version']
-        filename = name + '.' + file_game.filename.rsplit('.', 1)[1].lower()
+        if file_game.filename.rsplit('.', 1)[1].lower() == 'py':
+            filename = name + '.pyw'
+        else:
+            filename = name + '.' + file_game.filename.rsplit('.', 1)[1].lower()
         image = name + '.' + file_image.filename.rsplit('.', 1)[1].lower()
 
         basepath = os.path.abspath(os.path.dirname(__file__))   # 当前文件所在路径
@@ -821,7 +824,10 @@ def game_update():
         game = db.execute(
             'SELECT * FROM game WHERE gid = ?', (gid, )
         ).fetchone()
-        filename = game['name'] + '.' + file_game.filename.rsplit('.', 1)[1].lower()
+        if file_game.filename.rsplit('.', 1)[1].lower() == 'py':
+            filename = game['name'] + '.pyw'
+        else:
+            filename = game['name'] + '.' + file_game.filename.rsplit('.', 1)[1].lower()
 
         basepath = os.path.abspath(os.path.dirname(__file__))   # 当前文件所在路径
   
