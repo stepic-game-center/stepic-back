@@ -1040,6 +1040,40 @@ def score_query_event():
         return 'score_query_event'
 
 
+@bp.route('/score/query_max_all', methods=('GET', 'POST'))
+def query_max_all():
+    '''查询并展示所有游戏的最高分以及得分者（只显示每条游戏最高分，时间倒序排序）'''
+    if request.method == 'POST':
+        db = get_db()
+        error = None
+        
+        scores = db.execute(
+            'SELECT score.*, gname, uname FROM score, game, tbuser\
+            WHERE score.uid = tbuser.uid\
+            AND score.gid = game.gid\
+            GROUP BY score.gid\
+            ORDER BY date DESC'
+        ).fetchall()
+
+        if len(scores) == 0:
+            error = 'empty'
+
+        if error is None:
+            res_scores = []
+            for score in scores:
+                res_score = {}
+                res_score['score'] = score['score']
+                res_score['date'] = score['date']
+                res_score['uname'] = score['uname']
+                res_score['gname'] = score['gname']
+                res_scores.append(res_score)
+            return jsonify(res_scores)
+        else:
+            return error
+    else:
+        return 'query_max_all'
+
+
 @bp.route('/score/query_all', methods=('GET', 'POST'))
 def score_query_all():
     '''查询所有得分'''
