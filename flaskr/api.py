@@ -1048,7 +1048,7 @@ def query_max_all():
         error = None
         
         scores = db.execute(
-            'SELECT score.*, gname, uname FROM score, game, tbuser\
+            'SELECT max(score) as score, gname, uname, unick, date FROM score, game, tbuser\
             WHERE score.uid = tbuser.uid\
             AND score.gid = game.gid\
             GROUP BY score.gid\
@@ -1065,6 +1065,7 @@ def query_max_all():
                 res_score['score'] = score['score']
                 res_score['date'] = score['date']
                 res_score['uname'] = score['uname']
+                res_score['unick'] = score['unick']
                 res_score['gname'] = score['gname']
                 res_scores.append(res_score)
             return jsonify(res_scores)
