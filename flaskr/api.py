@@ -758,11 +758,11 @@ def game_upload():
         # check if the post request has the file part
         if 'image' not in request.files:
             flash('No image file part')
-            return 'error'
+            return redirect('https://stepic.redcountry.top/devResult.html?res=' + 'No image file part')
         file_image = request.files['image']
         if 'game' not in request.files:
             flash('No game file part')
-            return 'error'
+            return redirect('https://stepic.redcountry.top/devResult.html?res=' + 'No game file part')
         file_game = request.files['game']
 
         dname = request.form['dname']
@@ -782,7 +782,7 @@ def game_upload():
         # submit an empty part without filename
         if file_image.filename == '':
             flash('No selected file')
-            return 'error'
+            return redirect('https://stepic.redcountry.top/devResult.html?res=' + 'No selected file')
         if file_image and allowed_file(file_image.filename):
             if sys == "Windows":
                 file_image.save(basepath + '\static\image\\' + image)
@@ -793,7 +793,7 @@ def game_upload():
         
         if file_game.filename == '':
             flash('No selected file')
-            return 'error'
+            return redirect('https://stepic.redcountry.top/devResult.html?res=' + 'No selected file')
         if file_game and allowed_file(file_game.filename):
             if sys == "Windows":
                 file_game.save(basepath + '\static\game\\' + filename)
@@ -824,9 +824,13 @@ def game_upload():
                 (gname, name, filename, image, note, version, developer['did'])
             )
             db.commit()
-            return 'success'
+            # return 'success'
+            return redirect('https://stepic.redcountry.top/devResult.html?res=' + '上传成功')
         else:
-            return error
+            if error == 'repeat':
+                return redirect('https://stepic.redcountry.top/devResult.html?res=' + '逻辑名重复')
+            else:
+                return redirect('https://stepic.redcountry.top/devResult.html?res=' + '上传失败！')
     else:
         return '''
         <!doctype html>
@@ -856,7 +860,7 @@ def game_update():
 
         if 'game' not in request.files:
             flash('No game file part')
-            return 'error'
+            return redirect('https://stepic.redcountry.top/devResult.html?res=' + 'No game file part')
         file_game = request.files['game']
 
         gid = request.form['gid']
@@ -892,9 +896,9 @@ def game_update():
                 (filename, version, gid)
             )
             db.commit()
-            return 'success'
+            return redirect('https://stepic.redcountry.top/devResult.html?res=' + '更新成功')
         else:
-            return error
+            return redirect('https://stepic.redcountry.top/devResult.html?res=' + '更新失败！')
     else:
         return '''
         <!doctype html>
