@@ -526,6 +526,44 @@ def game_query_all_pub():
             return error
     else:
         return 'game_query_all_pub'
+
+
+@bp.route('/game/query_all_check', methods=('GET', 'POST'))
+def game_query_all_check():
+    '''查询所有待审核的游戏'''
+    if request.method == 'POST':
+        db = get_db()
+        error = None
+        games = db.execute(
+            'SELECT game.*, dname FROM game, developer \
+                WHERE star=developer.did AND game.status = 0'
+        ).fetchall()
+
+        if len(games) == 0:
+            error = 'empty'
+        
+        url = 'http://106.13.236.185:5000/static/'
+
+        if error is None:
+            res_games = []
+            for game in games:
+                res_game = {}
+                res_game['gid'] = game['gid']
+                res_game['gname'] = game['gname']
+                res_game['name'] = game['name']
+                res_game['filename'] = game['filename']
+                res_game['fileurl'] = url + 'game/' + game['filename']
+                res_game['image'] = url + 'image/' + game['image']
+                res_game['note'] = game['note']
+                res_game['version'] = game['version']
+                res_game['dname'] = game['dname']
+                res_game['status'] = get_game_status(game['status'])
+                res_games.append(res_game)
+            return jsonify(res_games)
+        else:
+            return error
+    else:
+        return 'game_query_all_check'
     
 
 @bp.route('/game/add_game', methods=('GET', 'POST'))
@@ -573,7 +611,8 @@ def game_query_all():
         db = get_db()
         error = None
         games = db.execute(
-            'SELECT * FROM game'
+            'SELECT game.*, dname FROM game, developer \
+                WHERE star=developer.did'
         ).fetchall()
 
         if len(games) == 0:
@@ -593,7 +632,7 @@ def game_query_all():
                 res_game['image'] = url + 'image/' + game['image']
                 res_game['note'] = game['note']
                 res_game['version'] = game['version']
-                res_game['star'] = game['star']
+                res_game['dname'] = game['dname']
                 res_game['status'] = get_game_status(game['status'])
                 res_games.append(res_game)
             return jsonify(res_games)
@@ -726,6 +765,7 @@ def game_upload():
             return 'error'
         file_game = request.files['game']
 
+        dname = request.form['dname']
         gname = request.form['gname']
         name = request.form['name']
         note = request.form['note']
@@ -771,14 +811,17 @@ def game_upload():
             game = db.execute(
                 'SELECT * FROM game WHERE name = ?', (name, )
             ).fetchone()
+            developer = db.execute(
+                'SELECT * FROM developer WHERE dname = ?', (dname, )
+            ).fetchone()
         
             if game is not None:
                 error = 'repeat'
 
         if error is None:
             db.execute(
-                'INSERT INTO game (gname, name, filename, image, note, version) VALUES (?, ?, ?, ?, ?, ?)',
-                (gname, name, filename, image, note, version)
+                'INSERT INTO game (gname, name, filename, image, note, version, star) VALUES (?, ?, ?, ?, ?, ?, ?)',
+                (gname, name, filename, image, note, version, developer['did'])
             )
             db.commit()
             return 'success'
@@ -790,6 +833,7 @@ def game_upload():
         <title>开发者上传游戏</title>
         <h1>开发者上传游戏</h1>
         <form method=post enctype=multipart/form-data>
+        开发者登录名名：<input type=text name=dname>
         游戏名：<input type=text name=gname>
         逻辑名：<input type=text name=name>
         简介：<input type=text name=note>
@@ -957,6 +1001,53 @@ def game_update_game():
     else:
         return 'game_update_game'
 
+
+@bp.route('/game/query_upload', methods=('GET', 'POST'))
+def game_query_upload():
+    '''开发者查询已上传的游戏'''
+    if request.method == 'POST':
+        db = get_db()
+        error = None
+        dname = request.form['dname']
+        db = get_db()
+        error = None
+
+        if not dname:
+            error = 'failed'
+        else:
+            developer = db.execute(
+                'SELECT * FROM developer WHERE dname = ?', (dname, )
+            ).fetchone()
+            games = db.execute(
+                'SELECT * FROM game WHERE star = ?',
+                (developer['did'], )
+            ).fetchall()
+
+            if len(games) == 0:
+                error = 'empty'
+
+        url = 'http://106.13.236.185:5000/static/'
+
+        if error is None:
+            res_games = []
+            for game in games:
+                res_game = {}
+                res_game['gid'] = game['gid']
+                res_game['gname'] = game['gname']
+                res_game['name'] = game['name']
+                res_game['filename'] = game['filename']
+                res_game['fileurl'] = url + 'game/' + game['filename']
+                res_game['image'] = url + 'image/' + game['image']
+                res_game['note'] = game['note']
+                res_game['version'] = game['version']
+                res_game['did'] = game['star']
+                res_game['status'] = get_game_status(game['status'])
+                res_games.append(res_game)
+            return jsonify(res_games)
+        else:
+            return error
+    else:
+        return 'game_query_upload'
 
 @bp.route('/score/query_by_uid', methods=('GET', 'POST'))
 def score_query_by_uid():
