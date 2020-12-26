@@ -38,4 +38,12 @@ def create_app(test_config=None):
     from . import api
     app.register_blueprint(api.bp)
 
+    app.after_request(after_request)
+
     return app
+
+
+# 跨域支持
+def after_request(resp):
+    resp.headers['Access-Control-Allow-Origin'] = '*'
+    return resp
