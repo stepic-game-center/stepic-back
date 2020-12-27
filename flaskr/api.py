@@ -505,7 +505,7 @@ def game_query_all_pub():
         if len(games) == 0:
             error = 'empty'
         
-        url = 'http://106.13.236.185:5000/static/'
+        url = 'https://stepic-api.redcountry.top/static/'
 
         if error is None:
             res_games = []
@@ -542,7 +542,7 @@ def game_query_all_check():
         if len(games) == 0:
             error = 'empty'
         
-        url = 'http://106.13.236.185:5000/static/'
+        url = 'https://stepic-api.redcountry.top/static/'
 
         if error is None:
             res_games = []
@@ -618,7 +618,7 @@ def game_query_all():
         if len(games) == 0:
             error = 'empty'
         
-        url = 'http://106.13.236.185:5000/static/'
+        url = 'https://stepic-api.redcountry.top/static/'
 
         if error is None:
             res_games = []
@@ -953,7 +953,7 @@ def game_query_by_id():
             if game is None:
                 error = 'failed'
 
-        url = 'http://106.13.236.185:5000/static/'
+        url = 'https://stepic-api.redcountry.top/static/'
 
         if error is None:
             res_game = {}
@@ -1030,7 +1030,7 @@ def game_query_upload():
             if len(games) == 0:
                 error = 'empty'
 
-        url = 'http://106.13.236.185:5000/static/'
+        url = 'https://stepic-api.redcountry.top/static/'
 
         if error is None:
             res_games = []
