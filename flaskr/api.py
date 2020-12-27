@@ -1355,6 +1355,31 @@ def score_add2():
         return 'score_add2'
 
 
+@bp.route('/score/delete', methods=('GET', 'POST'))
+def score_delete():
+    '''删除某一得分'''
+    if request.method == 'POST':
+        sid = request.form['sid']
+        db = get_db()
+        error = None
+
+        if not sid:
+            error = 'failed'
+        else:
+            db.execute(
+                'DELETE FROM score WHERE sid = ?',
+                (sid, )
+            )
+            db.commit()
+
+        if error is None:
+            return 'success'
+        else:
+            return error
+    else:
+        return 'score_delete'
+
+
 # 开发者
 
 @bp.route('/developer/query_info', methods=('GET', 'POST'))
