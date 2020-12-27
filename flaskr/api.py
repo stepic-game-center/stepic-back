@@ -1314,6 +1314,47 @@ def score_add():
         return 'score_add'
 
 
+@bp.route('/score/add2', methods=('GET', 'POST'))
+def score_add2():
+    '''新增一条游戏得分(通过游戏逻辑名name)'''
+    if request.method == 'POST':
+        
+        uname = request.form['uname']
+        name = request.form['name']
+        score = request.form['score']
+
+        db = get_db()
+        error = None
+        if not uname or not name or not score:
+            error = 'failed'
+        else:
+            user = db.execute(
+                'SELECT * FROM tbuser WHERE uname = ?', (uname,)
+            ).fetchone()
+            game = db.execute(
+                'SELECT * FROM game WHERE name = ?', (name,)
+            ).fetchone()
+
+            if user is None or game is None:
+                error = 'failed'
+            else:
+                import datetime
+                now_time = datetime.datetime.now().strftime('%Y-%m-%d')
+                db.execute(
+                    'INSERT INTO score (uid, gid, score, date) VALUES (?, ?, ?, ?)',
+                    (user['uid'], game['gid'], score, now_time)
+                )
+                db.commit()
+                return 'success'
+
+        if error is None:
+            return 'success'
+        else:
+            return error
+    else:
+        return 'score_add2'
+
+
 # 开发者
 
 @bp.route('/developer/query_info', methods=('GET', 'POST'))
